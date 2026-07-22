@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <?php if (($r['attendance_status'] ?? '') === 'present'): ?>
                                     <span class="badge badge-approved" style="background:rgba(21,128,61,0.1);color:#15803d;border:1px solid #bbf7d0;">✓ Present</span>
                                 <?php else: ?>
-                                    <span class="badge badge-pending" style="background:rgba(245,158,11,0.1);color:#d97706;border:1px solid #fde68a;">Pending Check-in</span>
+                                    <span style="color: #94A3B8;">-</span>
                                 <?php endif; ?>
                             </td>
                         </tr>

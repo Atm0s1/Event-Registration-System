@@ -76,10 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $initialStatus = 'pending';
             if (!empty($event['max_capacity']) && $event['max_capacity'] > 0) {
-                $capStmt = $conn->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = ? AND status = 'approved'");
+                $capStmt = $conn->prepare("SELECT COUNT(*) FROM registrations WHERE event_id = ? AND status != 'rejected'");
                 $capStmt->execute([$eventId]);
                 if ($capStmt->fetchColumn() >= $event['max_capacity']) {
-                    $initialStatus = 'waitlisted';
+                    throw new Exception("Sorry, this event has reached its maximum capacity of {$event['max_capacity']} attendees.");
                 }
             }
 
