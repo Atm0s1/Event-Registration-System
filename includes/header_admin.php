@@ -17,6 +17,13 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
     <title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> — Event Management</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=<?= time() ?>">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        window.addEventListener("pageshow", function (event) {
+            if (event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
+    </script>
 </head>
 <body>
 <div class="admin-layout">
@@ -56,7 +63,7 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
                     <span class="header-user-role">Administrator</span>
                 </div>
                 <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Logout">
-                    <i class="ph-bold ph-power" style="font-size: 22px;"></i>
+                    <i class="ph-bold ph-sign-out" style="font-size: 22px;"></i>
                 </a>
             </div>
         </header>
