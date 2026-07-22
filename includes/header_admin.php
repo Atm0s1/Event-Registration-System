@@ -2,6 +2,10 @@
 /**
  * Admin header — VidConf sidebar + top header
  */
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; }
 ?>
@@ -46,11 +50,14 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <div class="header-left">
                 <button id="openSidebarBtn" class="mobile-only-btn" style="background: none; border: none; color: var(--text-dark); cursor: pointer; display: none; margin-right: 16px;"><i class="ph ph-list" style="font-size: 28px;"></i></button>
             </div>
-            <div class="header-right">
+            <div class="header-right" style="display: flex; align-items: center; gap: 16px;">
                 <div class="header-user-info" style="text-align: right;">
                     <span class="header-user-name">Admin</span>
                     <span class="header-user-role">Administrator</span>
                 </div>
+                <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Logout">
+                    <i class="ph-bold ph-power" style="font-size: 22px;"></i>
+                </a>
             </div>
         </header>
 
