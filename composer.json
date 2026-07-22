@@ -1,0 +1,7 @@
+{
+    "name": "event-management/system",
+    "description": "Event Management System with Gmail notifications",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}
