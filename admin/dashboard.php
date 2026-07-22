@@ -25,10 +25,6 @@ $upcomingEvents = $conn->query("
 
 require_once __DIR__ . '/../includes/header_admin.php';
 ?>
-
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <div class="dash-layout">
 
     <!-- ════ LEFT COLUMN ════ -->
@@ -50,10 +46,6 @@ require_once __DIR__ . '/../includes/header_admin.php';
             <div class="stat-card red">
                 <div class="stat-label">Approved Participants</div>
                 <div class="stat-value"><?= number_format($approvedCount) ?></div>
-            </div>
-            <div class="stat-card gray">
-                <div class="stat-label">Average Rating</div>
-                <div class="stat-value">4.5</div>
             </div>
         </div>
 
@@ -85,48 +77,7 @@ require_once __DIR__ . '/../includes/header_admin.php';
 
     <!-- ════ RIGHT COLUMN ════ -->
     <div style="display: flex; flex-direction: column; gap: 24px;">
-
-        <!-- Booking vs Revenue Chart -->
-        <div class="chart-card">
-            <h3>Registrations Trend</h3>
-            <p class="chart-subtitle">Past 7 Days</p>
-            <div style="position: relative; height: 220px;">
-                <canvas id="areaChart"></canvas>
-            </div>
-        </div>
-
-
-
-
     </div>
 </div>
-
-<!-- ════ CHARTS JS ════ -->
-<script>
-
-// Area Chart
-const actx = document.getElementById('areaChart').getContext('2d');
-const grad = actx.createLinearGradient(0,0,0,220);
-grad.addColorStop(0,'rgba(245,166,35,0.35)');
-grad.addColorStop(1,'rgba(245,166,35,0)');
-new Chart(actx, {
-    type: 'line',
-    data: {
-        labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-        datasets: [{
-            label: 'New Registrations', data: [1,2.5,1.5,3,2.5,3.5,5], borderColor: '#F5A623', backgroundColor: grad, borderWidth: 3, fill: true, tension: 0.4, pointRadius: 4, pointBackgroundColor: '#fff', pointBorderColor: '#3B82F6', pointBorderWidth: 2
-        },{
-            label: 'Active Users', data: [0.5,1,1.5,1,2,1.5,2.5], borderColor: '#A78BFA', borderWidth: 2, borderDash: [5,5], fill: false, tension: 0.4, pointRadius: 0
-        }]
-    },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'top', align: 'end', labels: { boxWidth: 10, usePointStyle: true, pointStyle: 'circle', font: { size: 11 } } } },
-        scales: { y: { beginAtZero: true, max: 6, grid: { color: '#F3F4F6', drawBorder: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#9CA3AF' } }, x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 11 }, color: '#9CA3AF' } } }
-    }
-});
-
-
-</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
