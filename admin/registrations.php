@@ -73,9 +73,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manual_register'])) {
             $fullName = $fname . ' ' . $lname;
             $mapUrl = (!empty($event['latitude']) && !empty($event['longitude'])) ? "https://www.google.com/maps/search/?api=1&query={$event['latitude']},{$event['longitude']}" : '';
             
-            sendApprovalEmail($email, $fullName, $event['event_name'], $event['event_date'], $event['venue'], $qrToken, $mapUrl);
+            $emailSent = sendApprovalEmail($email, $fullName, $event['event_name'], $event['event_date'], $event['venue'], $qrToken, $mapUrl);
             
-            $success = "Successfully registered $fullName for {$event['event_name']}!";
+            if ($emailSent) {
+                $success = "Successfully registered $fullName for {$event['event_name']}! Ticket email sent.";
+            } else {
+                $success = "Successfully registered $fullName for {$event['event_name']}, but the ticket email FAILED to send. Please check your SMTP settings or internet connection.";
+            }
         } catch (Exception $e) {
             $error = $e->getMessage();
         }
