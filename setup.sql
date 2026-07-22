@@ -50,13 +50,15 @@ CREATE TABLE events (
     event_name  VARCHAR(255) NOT NULL,
     description TEXT,
     event_date  DATE         DEFAULT NULL,
+    event_time  TIME         DEFAULT NULL,
     venue       VARCHAR(255) DEFAULT NULL,
     latitude    DECIMAL(10,8) DEFAULT NULL,
     longitude   DECIMAL(11,8) DEFAULT NULL,
-    icon        VARCHAR(10)  DEFAULT '📋',
+    icon        VARCHAR(50)  DEFAULT '📋',
     color       VARCHAR(20)  DEFAULT '#667eea',
     min_age     INT          DEFAULT 0,
     is_active   TINYINT(1)   DEFAULT 1,
+    is_archived TINYINT(1)   DEFAULT 0,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
