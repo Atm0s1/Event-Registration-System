@@ -94,6 +94,8 @@ try {
             user_id         INT NOT NULL,
             event_id        INT NOT NULL,
             status          ENUM('pending','approved','rejected') DEFAULT 'pending',
+            qr_token        VARCHAR(64) UNIQUE DEFAULT NULL,
+            attendance_status ENUM('pending','present') DEFAULT 'pending',
             registered_date DATE    DEFAULT NULL,
             registered_time TIME    DEFAULT NULL,
             updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
