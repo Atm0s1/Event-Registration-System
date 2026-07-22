@@ -57,6 +57,7 @@ CREATE TABLE events (
     icon        VARCHAR(50)  DEFAULT '📋',
     color       VARCHAR(20)  DEFAULT '#667eea',
     min_age     INT          DEFAULT 0,
+    max_capacity INT         DEFAULT NULL,
     is_active   TINYINT(1)   DEFAULT 1,
     is_archived TINYINT(1)   DEFAULT 0,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
