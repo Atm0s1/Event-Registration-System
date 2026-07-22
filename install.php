@@ -157,23 +157,16 @@ try {
     <title>Install — Event Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#000;color:#fff;padding:20px}
-        .card{background:#000;border:4px solid #fff;padding:40px;max-width:540px;width:100%;box-shadow: 12px 12px 0px #fff;}
-        h1{font-size:32px;margin-bottom:30px;text-transform:uppercase;letter-spacing:-1px;border-bottom:4px solid #fff;padding-bottom:10px}
-        .msg{padding:14px 18px;margin:10px 0;font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:1px;background:#000;border:2px solid #fff}
-        .ok{color:#fff;border-left:8px solid #fff}
-        .err{color:#000;background:#fff;border-left:8px solid #000}
-        .next{margin-top:30px;display:flex;gap:15px;flex-wrap:wrap}
-        a.btn{padding:14px 24px;text-decoration:none;font-weight:800;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#000;background:#fff;border:2px solid #fff;transition:all .2s ease}
-        a.btn:hover{background:#000;color:#fff;box-shadow: 6px 6px 0px #fff;transform:translate(-2px,-2px)}
-        .warn{margin-top:30px;padding:15px;font-size:13px;font-weight:700;text-transform:uppercase;background:#000;border:2px dashed #fff;color:#fff;text-align:center}
-        code{background:#fff;color:#000;padding:2px 6px;font-weight:bold}
+        body { font-family: monospace; padding: 20px; background: #fff; color: #000; }
+        .msg { margin: 5px 0; }
+        .warn { margin-top: 20px; color: red; font-weight: bold; }
+        .next { margin-top: 20px; }
+        .next a { margin-right: 15px; }
     </style>
 </head>
 <body>
-<div class="card">
-    <h1>SYS // INSTALLER</h1>
+<div>
+    <h1>System Installer</h1>
     <?php foreach ($msgs as $m): ?>
         <?php 
             $text = str_replace(['✅ ', '❌ '], '', $m);
@@ -184,12 +177,12 @@ try {
 
     <?php if ($ok): ?>
         <div class="next">
-            <a class="btn" href="admin/login.php">ADMIN PANEL &rarr;</a>
-            <a class="btn" href="user/login.php">USER PORTAL &rarr;</a>
+            <a href="admin/login.php">Go to Admin Panel</a>
+            <a href="user/login.php">Go to User Portal</a>
         </div>
-        <div class="warn">WARNING: DELETE <code>install.php</code> IMMEDIATELY AFTER USE.</div>
+        <div class="warn">Delete install.php after use.</div>
     <?php else: ?>
-        <div class="warn">CRITICAL FAILURE: FIX ERROR AND REBOOT.</div>
+        <div class="warn">Installation failed. Fix the error above and refresh.</div>
     <?php endif; ?>
 </div>
 </body>
