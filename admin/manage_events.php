@@ -276,7 +276,7 @@ require_once __DIR__ . '/../includes/header_admin.php';
                     <i class="ph ph-user" style="font-size: 16px; color: #F5A623;"></i> Min Age: <strong style="color: var(--text-dark); margin-left: 4px;"><?= $ev['min_age'] ?>+</strong>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <i class="ph ph-users-three" style="font-size: 16px; color: #8B5CF6;"></i> Capacity: <strong style="color: var(--text-dark); margin-left: 4px;"><?= $ev['max_capacity'] ? $ev['max_capacity'] : 'Unlimited' ?></strong>
+                    <i class="ph ph-users-three" style="font-size: 16px; color: #8B5CF6;"></i> Capacity: <strong style="color: var(--text-dark); margin-left: 4px;"><?= !empty($ev['max_capacity']) ? $ev['max_capacity'] : 'Unlimited' ?></strong>
                 </div>
             </div>
 
