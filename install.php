@@ -183,7 +183,6 @@ try {
     <?php if ($ok): ?>
         <div class="next">
             <a href="admin/login.php">Go to Admin Panel</a>
-            <a href="user/login.php">Go to User Portal</a>
         </div>
         <div class="warn">Delete install.php after use.</div>
     <?php else: ?>
