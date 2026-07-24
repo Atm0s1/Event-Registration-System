@@ -42,6 +42,16 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <button id="closeSidebarBtn" class="mobile-only-btn" style="background: none; border: none; color: white; cursor: pointer; display: none;"><i class="ph ph-x" style="font-size: 24px;"></i></button>
         </div>
 
+        <div style="margin: 0 16px 16px 16px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 14px; font-weight: 700; color: white;">Admin</span>
+                <span style="font-size: 12px; color: var(--accent);">Administrator</span>
+            </div>
+            <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'" title="Logout">
+                <i class="ph-bold ph-sign-out" style="font-size: 20px;"></i>
+            </a>
+        </div>
+
         <nav class="sidebar-nav">
             <a href="dashboard.php"       class="sidebar-link <?= ($currentPage ?? '') === 'dashboard'     ? 'active' : '' ?>"><i class="ph ph-squares-four" style="font-size: 20px;"></i> Dashboard</a>
             <a href="manage_events.php"   class="sidebar-link <?= ($currentPage ?? '') === 'events'        ? 'active' : '' ?>"><i class="ph ph-calendar-blank" style="font-size: 20px;"></i> Manage Events</a>
@@ -52,16 +62,6 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <a href="export_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'export'        ? 'active' : '' ?>"><i class="ph ph-upload-simple" style="font-size: 20px;"></i> Export XML</a>
             <a href="import_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'import'        ? 'active' : '' ?>"><i class="ph ph-download-simple" style="font-size: 20px;"></i> Import XML</a>
         </nav>
-
-        <div style="margin-top: auto; margin-bottom: 16px; padding: 16px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-size: 14px; font-weight: 700; color: white;">Admin</span>
-                <span style="font-size: 12px; color: var(--accent);">Administrator</span>
-            </div>
-            <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'" title="Logout">
-                <i class="ph-bold ph-sign-out" style="font-size: 20px;"></i>
-            </a>
-        </div>
     </aside>
 
     <!-- ── MAIN ── -->
