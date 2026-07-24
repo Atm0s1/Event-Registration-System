@@ -408,19 +408,9 @@ document.addEventListener('click', function(e) {
     border: none !important;
     border-radius: 24px !important;
     font-family: 'Inter', sans-serif !important;
-    width: 340px !important;
-    padding: 12px !important;
-    box-sizing: border-box !important;
-}
-.flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days, .dayContainer {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
+    padding-bottom: 10px !important;
 }
 .flatpickr-day {
-    max-width: unset !important;
-    width: 14.28% !important; /* 1/7th for perfect 7-column grid */
-    flex-basis: 14.28% !important;
     border-radius: 50% !important;
     font-weight: 500;
 }
