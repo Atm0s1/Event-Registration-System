@@ -1,6 +1,6 @@
 <?php
 /**
- * Admin — QR Code Kiosk Scanner
+ * Admin — Registration Scanner
  */
 session_start();
 if (empty($_SESSION['admin_logged_in'])) {
@@ -15,8 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
     header('Content-Type: application/json');
     $token = trim($_POST['qr_token']);
     
-    // The QR code contains a full URL (e.g. http://.../scan.php?token=XYZ)
-    // We need to extract just the token parameter.
     if (filter_var($token, FILTER_VALIDATE_URL)) {
         $parsed = parse_url($token);
         if (isset($parsed['query'])) {
@@ -26,6 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
             }
         }
     }
+    
     try {
         $db = new Database();
         $conn = $db->connect();
@@ -73,175 +72,272 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kiosk Scanner — Event Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Registration Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        :root {
+            --primary: #FF9F80;
+            --primary-light: #FFDFD4;
+            --bg: #FAFAFA;
+            --text-main: #1E293B;
+            --text-sub: #94A3B8;
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body {
-            background-color: #0F172A; /* Deep dark blue */
-            color: white;
+            background-color: #1A1A1A; /* Top dark notch background */
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .app-container {
+            width: 100%;
+            max-width: 480px; /* Mobile width constraint for desktop viewing */
+            background-color: var(--bg);
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            margin-top: 40px; /* Space for the "notch" */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
             position: relative;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+            min-height: calc(100vh - 40px);
         }
+        
+        /* Simulated Notch / Top handle */
+        .notch-handle {
+            width: 40px;
+            height: 4px;
+            background: #E2E8F0;
+            border-radius: 4px;
+            margin: 16px auto;
+        }
+
         .header {
-            position: absolute;
-            top: 20px;
-            left: 30px;
-            right: 30px;
+            padding: 10px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 100;
         }
-        .logo {
+        
+        .header-spacer { width: 44px; } /* To center the title if needed */
+
+        .exit-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 2px solid var(--primary-light);
+            color: var(--primary);
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            text-decoration: none;
+            transition: 0.2s;
+            background: white;
+        }
+        .exit-btn:hover { background: var(--primary-light); }
+
+        .title-section {
+            text-align: center;
+            padding: 20px 30px;
+        }
+        .title-section h1 {
             font-size: 24px;
             font-weight: 800;
-            letter-spacing: -0.5px;
-            color: #F8FAFC;
+            color: var(--text-main);
+            margin-bottom: 12px;
         }
-        .logo i { color: #38BDF8; font-size: 32px; }
-        .exit-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            text-decoration: none;
+        .title-section p {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.5;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+
+        .scanner-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* html5-qrcode container overrides */
+        #reader {
+            width: 100%;
+            max-width: 320px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: none !important;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: white;
+        }
+        #reader__scan_region {
+            background: white;
+        }
+        #reader video {
+            border-radius: 24px;
+            object-fit: cover;
+        }
+        #reader__dashboard_section_csr span { color: var(--text-main) !important; font-weight: 600; }
+        #reader__dashboard_section_swaplink { color: var(--primary) !important; text-decoration: none; font-weight: 600;}
+        #reader button {
+            background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; margin: 8px; width: 80%;
+        }
+
+        .scanning-text {
+            color: var(--text-sub);
+            font-size: 14px;
             font-weight: 600;
+            margin-top: 24px;
             display: flex;
             align-items: center;
             gap: 8px;
-            transition: 0.2s;
         }
-        .exit-btn:hover { background: rgba(239, 68, 68, 0.2); border-color: #EF4444; color: #FCA5A5; }
+        
+        .bottom-actions {
+            padding: 30px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 24px;
+            background: white;
+            border-top-left-radius: 32px;
+            border-top-right-radius: 32px;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
+            margin-top: auto;
+        }
 
-        .scanner-container {
+        .icon-row {
+            display: flex;
+            gap: 32px;
+            color: var(--text-sub);
+        }
+        .icon-row i { font-size: 24px; cursor: pointer; transition: 0.2s; }
+        .icon-row i:hover { color: var(--primary); }
+
+        .main-btn {
             width: 100%;
-            max-width: 500px;
-            background: #1E293B;
-            border-radius: 32px;
-            padding: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255,255,255,0.05);
-            position: relative;
-            z-index: 10;
+            padding: 18px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(255, 159, 128, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
         }
-        .scanner-title {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #94A3B8;
-        }
-        
-        #reader {
-            width: 100%;
-            border-radius: 20px;
-            overflow: hidden;
-            background: #000;
-            border: 2px solid #334155;
-        }
-        #reader video {
-            border-radius: 20px;
-        }
-        
-        /* The massive overlay */
+
+        /* Overlay */
         .overlay {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: 999;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            transform: scale(0.9);
+            transition: opacity 0.3s ease;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
         }
         .overlay.active {
             opacity: 1;
-            transform: scale(1);
-        }
-        .overlay.success {
-            background: rgba(16, 185, 129, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        .overlay.error {
-            background: rgba(239, 68, 68, 0.95);
-            backdrop-filter: blur(10px);
-        }
-        .overlay-icon {
-            font-size: 120px;
-            margin-bottom: 24px;
-            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .overlay-name {
-            font-size: 64px;
-            font-weight: 800;
-            text-align: center;
-            margin-bottom: 16px;
-            line-height: 1.1;
-        }
-        .overlay-msg {
-            font-size: 24px;
-            font-weight: 400;
-            opacity: 0.9;
-            text-align: center;
-        }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
-        }
-
-        /* html5-qrcode overrides to make it look clean */
-        #reader__dashboard_section_csr span { color: white !important; }
-        #reader__dashboard_section_swaplink { color: #38BDF8 !important; text-decoration: none; }
-        #reader button {
-            background: #38BDF8; color: #0F172A; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; margin: 4px;
+            pointer-events: all;
         }
         
+        .overlay-card {
+            background: white;
+            padding: 40px 24px;
+            border-radius: 32px;
+            width: 85%;
+            text-align: center;
+            transform: translateY(50px) scale(0.9);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+        .overlay.active .overlay-card {
+            transform: translateY(0) scale(1);
+        }
+
+        .overlay-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .success .overlay-icon { color: #10B981; }
+        .error .overlay-icon { color: #EF4444; }
+        
+        .overlay-name {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+        .overlay-msg {
+            font-size: 15px;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo">
-            <i class="ph-fill ph-scan"></i>
-            Kiosk Mode
+    <div class="app-container">
+        <div class="notch-handle"></div>
+        
+        <div class="header">
+            <div class="header-spacer"></div>
+            <a href="dashboard.php" class="exit-btn" title="Exit Scanner">
+                <i class="ph-bold ph-sign-out" style="font-size: 24px;"></i>
+            </a>
         </div>
-        <a href="dashboard.php" class="exit-btn">
-            <i class="ph-bold ph-x"></i> Exit Kiosk
-        </a>
-    </div>
 
-    <div class="scanner-container">
-        <div class="scanner-title">Please show your QR ticket to the camera</div>
-        <div id="reader"></div>
-    </div>
+        <div class="title-section">
+            <h1>Registration Scanner</h1>
+            <p>Place qr code inside the frame to scan please avoid shake to get results quickly.</p>
+        </div>
 
-    <!-- Success/Error Overlay -->
-    <div id="overlay" class="overlay">
-        <i id="overlay-icon" class="ph-fill ph-check-circle overlay-icon"></i>
-        <div id="overlay-name" class="overlay-name">John Doe</div>
-        <div id="overlay-msg" class="overlay-msg">Welcome to the Event!</div>
+        <div class="scanner-wrapper">
+            <div id="reader"></div>
+            <div class="scanning-text">
+                <i class="ph-bold ph-spinner-gap ph-spin" style="color: var(--primary); font-size: 18px;"></i> 
+                Scanning Code...
+            </div>
+        </div>
+        
+        <div class="bottom-actions">
+            <div class="icon-row">
+                <i class="ph-bold ph-image"></i>
+                <i class="ph-bold ph-barcode"></i>
+                <i class="ph-bold ph-lightning"></i>
+            </div>
+            <button class="main-btn">
+                <i class="ph-bold ph-camera"></i> Scanning Active
+            </button>
+        </div>
+
+        <!-- Result Overlay -->
+        <div id="overlay" class="overlay">
+            <div class="overlay-card" id="overlay-card">
+                <i id="overlay-icon" class="ph-fill ph-check-circle overlay-icon"></i>
+                <div id="overlay-name" class="overlay-name">John Doe</div>
+                <div id="overlay-msg" class="overlay-msg">Welcome to the Event!</div>
+            </div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
-    // Audio Synthesizers for Instant Zero-Latency Sound
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     const actx = new AudioContext();
 
@@ -250,7 +346,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
         const osc = actx.createOscillator();
         const gain = actx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(1046.50, actx.currentTime); // C6
+        osc.frequency.setValueAtTime(1046.50, actx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(523.25, actx.currentTime + 0.6);
         gain.gain.setValueAtTime(0.5, actx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + 0.6);
@@ -283,12 +379,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
 
         let isScanning = true;
         const overlay = document.getElementById('overlay');
+        const overlayCard = document.getElementById('overlay-card');
         const overlayIcon = document.getElementById('overlay-icon');
         const overlayName = document.getElementById('overlay-name');
         const overlayMsg = document.getElementById('overlay-msg');
 
         function showOverlay(type, name, msg) {
-            overlay.className = 'overlay active ' + type;
+            overlay.classList.add('active');
+            overlayCard.className = 'overlay-card ' + type;
             overlayIcon.className = type === 'success' ? 'ph-fill ph-check-circle overlay-icon' : 'ph-fill ph-warning-circle overlay-icon';
             overlayName.textContent = name;
             overlayMsg.textContent = msg;
@@ -299,9 +397,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
                 playBuzzer();
             }
 
-            // Auto resume after 3 seconds
             setTimeout(() => {
-                overlay.className = 'overlay';
+                overlay.classList.remove('active');
                 isScanning = true;
             }, 3000);
         }
@@ -330,10 +427,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
             });
         }
 
-        // Initialize scanner
         html5QrcodeScanner.render(onScanSuccess, (err) => {});
         
-        // Start Audio Context on first click (browser policy)
         document.body.addEventListener('click', () => {
             if (actx.state === 'suspended') actx.resume();
         }, {once:true});
