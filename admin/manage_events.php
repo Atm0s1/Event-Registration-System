@@ -408,8 +408,21 @@ document.addEventListener('click', function(e) {
     border: none !important;
     border-radius: 24px !important;
     font-family: 'Inter', sans-serif !important;
-    width: auto !important;
-    padding-bottom: 10px !important;
+    width: 340px !important;
+    padding: 12px !important;
+    box-sizing: border-box !important;
+}
+.flatpickr-innerContainer, .flatpickr-rContainer, .flatpickr-days, .dayContainer {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+}
+.flatpickr-day {
+    max-width: unset !important;
+    width: 14.28% !important; /* 1/7th for perfect 7-column grid */
+    flex-basis: 14.28% !important;
+    border-radius: 50% !important;
+    font-weight: 500;
 }
 .flatpickr-months {
     margin-bottom: 10px;
@@ -419,10 +432,7 @@ document.addEventListener('click', function(e) {
     border-color: #5F949A !important;
     box-shadow: 0 4px 10px rgba(95, 148, 154, 0.4);
 }
-.flatpickr-day {
-    border-radius: 50% !important;
-    font-weight: 500;
-}
+
 .flatpickr-time {
     border-top: none !important;
 }
