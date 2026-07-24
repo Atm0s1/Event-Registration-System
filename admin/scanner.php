@@ -198,43 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
             gap: 8px;
         }
         
-        .bottom-actions {
-            padding: 30px 24px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 24px;
-            background: white;
-            border-top-left-radius: 32px;
-            border-top-right-radius: 32px;
-            box-shadow: 0 -10px 30px rgba(0,0,0,0.02);
-            margin-top: auto;
-        }
 
-        .icon-row {
-            display: flex;
-            gap: 32px;
-            color: var(--text-sub);
-        }
-        .icon-row i { font-size: 24px; cursor: pointer; transition: 0.2s; }
-        .icon-row i:hover { color: var(--primary); }
-
-        .main-btn {
-            width: 100%;
-            padding: 18px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            box-shadow: 0 10px 20px rgba(255, 159, 128, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            cursor: pointer;
-        }
 
         /* Overlay */
         .overlay {
@@ -315,16 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
             </div>
         </div>
         
-        <div class="bottom-actions">
-            <div class="icon-row">
-                <i class="ph-bold ph-image"></i>
-                <i class="ph-bold ph-barcode"></i>
-                <i class="ph-bold ph-lightning"></i>
-            </div>
-            <button class="main-btn">
-                <i class="ph-bold ph-camera"></i> Scanning Active
-            </button>
-        </div>
+
 
         <!-- Result Overlay -->
         <div id="overlay" class="overlay">
