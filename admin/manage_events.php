@@ -392,7 +392,6 @@ document.addEventListener('click', function(e) {
         resultsDiv.style.display = 'none';
     }
 });
-});
 </script>
 
 <style>
