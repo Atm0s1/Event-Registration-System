@@ -35,14 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 (int)$_POST['min_age'],
                 $_POST['max_capacity'] !== '' ? (int)$_POST['max_capacity'] : null
             ]);
-            $eid = $conn->lastInsertId();
-
-            // Insert 3 requirements
-            $reqStmt = $conn->prepare("INSERT INTO event_requirements (event_id,requirement_text,sort_order) VALUES (?,?,?)");
-            for ($i = 1; $i <= 3; $i++) {
-                $rt = trim($_POST["req$i"] ?? '');
-                if ($rt) $reqStmt->execute([$eid, $rt, $i]);
-            }
+            
             $success = 'Event added successfully!';
 
         } elseif ($action === 'edit') {
@@ -63,13 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $eid
             ]);
 
-            // Update requirements: delete old, insert new
-            $conn->prepare("DELETE FROM event_requirements WHERE event_id = ?")->execute([$eid]);
-            $reqStmt = $conn->prepare("INSERT INTO event_requirements (event_id,requirement_text,sort_order) VALUES (?,?,?)");
-            for ($i = 1; $i <= 3; $i++) {
-                $rt = trim($_POST["req$i"] ?? '');
-                if ($rt) $reqStmt->execute([$eid, $rt, $i]);
-            }
             $success = 'Event updated successfully!';
 
         } elseif ($action === 'delete') {
@@ -92,14 +78,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ── Fetch events with requirements ─────────────────────────
+// Fetch events
 $events = $conn->query("SELECT * FROM events WHERE is_archived = 0 ORDER BY is_active DESC, created_at DESC")->fetchAll();
-
-$eventReqs = [];
-$reqRows = $conn->query("SELECT * FROM event_requirements ORDER BY event_id, sort_order")->fetchAll();
-foreach ($reqRows as $r) {
-    $eventReqs[$r['event_id']][] = $r;
-}
 
 // Editing?
 $editEvent = null;
@@ -109,7 +89,6 @@ if (isset($_GET['edit'])) {
     foreach ($events as $ev) {
         if ($ev['event_id'] == $editId) { $editEvent = $ev; break; }
     }
-    $editReqs = $eventReqs[$editId] ?? [];
 }
 
 require_once __DIR__ . '/../includes/header_admin.php';
@@ -215,16 +194,6 @@ require_once __DIR__ . '/../includes/header_admin.php';
             </div>
         </div>
 
-        <h4 style="margin:12px 0 8px;font-size:14px;color:var(--text-secondary);">3 REQUIREMENTS / QUESTIONS</h4>
-        <?php for ($i = 1; $i <= 3; $i++): ?>
-        <div class="form-group">
-            <label class="form-label">Requirement <?= $i ?></label>
-            <input type="text" name="req<?= $i ?>" class="form-input"
-                value="<?= htmlspecialchars($editReqs[$i-1]['requirement_text'] ?? '') ?>"
-                placeholder="e.g. Why do you want to attend?">
-        </div>
-        <?php endfor; ?>
-
         <div class="btn-group">
             <button type="submit" class="btn btn-primary"><?= $editEvent ? 'Update Event' : 'Add Event' ?></button>
             <?php if ($editEvent): ?>
@@ -280,19 +249,7 @@ require_once __DIR__ . '/../includes/header_admin.php';
                 </div>
             </div>
 
-            <?php if (!empty($eventReqs[$ev['event_id']])): ?>
-            <div style="background: #F8FAFC; border-radius: 12px; padding: 12px 16px; margin-bottom: 20px;">
-                <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px;">Requirements</div>
-                <div style="display: flex; flex-direction: column; gap: 6px;">
-                    <?php foreach ($eventReqs[$ev['event_id']] as $rq): ?>
-                        <div style="display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--text-light);">
-                            <i class="ph-fill ph-check-circle" style="color: #10B981; margin-top: 2px;"></i>
-                            <span><?= htmlspecialchars($rq['requirement_text']) ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php endif; ?>
+            <!-- Requirements removed -->
 
             <div class="btn-group" style="margin-top: auto; border-top: 1px solid #F1F5F9; padding-top: 16px; display: flex; gap: 8px;">
                 <a href="manage_events.php?edit=<?= $ev['event_id'] ?>" class="btn btn-sm" style="background: #E0E7FF; color: #4F46E5; box-shadow: none;"><i class="ph ph-pencil-simple" style="font-size: 16px;"></i> Edit</a>
@@ -440,5 +397,59 @@ document.addEventListener('click', function(e) {
     if (resultsDiv && !e.target.closest('#searchResults') && e.target.id !== 'mapSearch' && e.target.id !== 'mapSearchBtn') {
         resultsDiv.style.display = 'none';
     }
+});
+});
+</script>
+
+<style>
+/* Custom Flatpickr Theme matching Figma Mockup */
+.flatpickr-calendar {
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important;
+    border: none !important;
+    border-radius: 24px !important;
+    padding: 16px !important;
+    font-family: 'Inter', sans-serif !important;
+}
+.flatpickr-months {
+    margin-bottom: 10px;
+}
+.flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay {
+    background: #5F949A !important;
+    border-color: #5F949A !important;
+    box-shadow: 0 4px 10px rgba(95, 148, 154, 0.4);
+}
+.flatpickr-day {
+    border-radius: 50% !important;
+    font-weight: 500;
+}
+.flatpickr-time {
+    border-top: none !important;
+}
+.flatpickr-time input:hover, .flatpickr-time .flatpickr-am-pm:hover, .flatpickr-time input:focus, .flatpickr-time .flatpickr-am-pm:focus {
+    background: #F1F5F9 !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize custom date picker
+    flatpickr('input[name="event_date"]', {
+        dateFormat: "Y-m-d",
+        minDate: "today", // Disallow past dates naturally
+        altInput: true,
+        altFormat: "F j, Y",
+        disableMobile: true // Force the custom UI on mobile instead of native picker
+    });
+    
+    // Initialize custom time picker
+    flatpickr('input[name="event_time"]', {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: false,
+        altInput: true,
+        altFormat: "h:i K",
+        disableMobile: true
+    });
 });
 </script>

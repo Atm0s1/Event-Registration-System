@@ -16,6 +16,8 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle ?? 'Admin') ?> — Event Management</title>
     <link rel="stylesheet" href="../assets/css/style.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script>
         window.addEventListener("pageshow", function (event) {
