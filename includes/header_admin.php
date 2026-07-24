@@ -52,8 +52,6 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <a href="history.php"         class="sidebar-link <?= ($currentPage ?? '') === 'history'       ? 'active' : '' ?>"><i class="ph ph-scroll" style="font-size: 20px;"></i> History</a>
             <a href="export_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'export'        ? 'active' : '' ?>"><i class="ph ph-upload-simple" style="font-size: 20px;"></i> Export XML</a>
             <a href="import_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'import'        ? 'active' : '' ?>"><i class="ph ph-download-simple" style="font-size: 20px;"></i> Import XML</a>
-        </nav>
-
         <div style="margin: 24px 16px 16px 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
             <div style="display: flex; flex-direction: column;">
                 <span style="font-size: 14px; font-weight: 700; color: white;">Admin</span>
@@ -63,6 +61,7 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
                 <i class="ph-bold ph-sign-out" style="font-size: 20px;"></i>
             </a>
         </div>
+        </nav>
     </aside>
 
     <!-- ── MAIN ── -->
