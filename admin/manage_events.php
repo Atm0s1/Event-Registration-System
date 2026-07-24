@@ -407,8 +407,9 @@ document.addEventListener('click', function(e) {
     box-shadow: 0 20px 50px rgba(0,0,0,0.15) !important;
     border: none !important;
     border-radius: 24px !important;
-    padding: 16px !important;
     font-family: 'Inter', sans-serif !important;
+    width: auto !important;
+    padding-bottom: 10px !important;
 }
 .flatpickr-months {
     margin-bottom: 10px;
