@@ -53,23 +53,22 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <a href="import_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'import'        ? 'active' : '' ?>"><i class="ph ph-download-simple" style="font-size: 20px;"></i> Import XML</a>
         </nav>
 
-        <a href="logout.php" class="sidebar-logout"><i class="ph ph-sign-out" style="font-size: 20px;"></i> Sign Out</a>
+        <div style="margin-top: auto; margin-bottom: 16px; padding: 16px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 14px; font-weight: 700; color: white;">Admin</span>
+                <span style="font-size: 12px; color: var(--accent);">Administrator</span>
+            </div>
+            <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.15); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.25)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.15)'" title="Logout">
+                <i class="ph-bold ph-sign-out" style="font-size: 20px;"></i>
+            </a>
+        </div>
     </aside>
 
     <!-- ── MAIN ── -->
     <main class="main-content">
-        <header class="top-header">
+        <header class="top-header" style="margin-bottom: 0;">
             <div class="header-left">
                 <button id="openSidebarBtn" class="mobile-only-btn" style="background: none; border: none; color: var(--text-dark); cursor: pointer; display: none; margin-right: 16px;"><i class="ph ph-list" style="font-size: 28px;"></i></button>
-            </div>
-            <div class="header-right" style="display: flex; align-items: center; gap: 16px;">
-                <div class="header-user-info" style="text-align: right;">
-                    <span class="header-user-name">Admin</span>
-                    <span class="header-user-role">Administrator</span>
-                </div>
-                <a href="logout.php" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 10px; background: rgba(239, 68, 68, 0.1); color: #EF4444; text-decoration: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'" title="Logout">
-                    <i class="ph-bold ph-sign-out" style="font-size: 22px;"></i>
-                </a>
             </div>
         </header>
 
