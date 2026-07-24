@@ -15,6 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['qr_token'])) {
     header('Content-Type: application/json');
     $token = trim($_POST['qr_token']);
     
+    // The QR code contains a full URL (e.g. http://.../scan.php?token=XYZ)
+    // We need to extract just the token parameter.
+    if (filter_var($token, FILTER_VALIDATE_URL)) {
+        $parsed = parse_url($token);
+        if (isset($parsed['query'])) {
+            parse_str($parsed['query'], $query);
+            if (isset($query['token'])) {
+                $token = $query['token'];
+            }
+        }
+    }
     try {
         $db = new Database();
         $conn = $db->connect();
