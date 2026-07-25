@@ -102,59 +102,49 @@ function _buildApprovedHtml(string $name, string $event, string $date, string $v
     <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { font-family: 'Inter', Helvetica, sans-serif; background: #f4f7f6; margin: 0; padding: 20px 10px; }
-            .container { max-width: 600px; width: 100%; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-            .map-btn { display: inline-block; background-color: #F8FAFC; border: 1px solid #E2E8F0; color: #334155; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 13px; font-weight: bold; margin-top: 6px; }
-            .waze-btn { display: inline-block; background-color: #33CCFF; color: #111; padding: 10px 20px; border-radius: 25px; text-decoration: none; font-size: 13px; font-weight: bold; margin-top: 6px; }
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #1f2937; margin: 0; padding: 30px 20px; line-height: 1.6; }
+            .container { max-width: 520px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px; }
+            .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; margin-right: 8px; margin-top: 8px; }
+            .btn-map { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; }
+            .btn-cal { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
         </style>
     </head>
     <body>
         <div class="container">
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #00b894, #00cec9); padding: 40px 20px; text-align: center; color: white;">
-                <h1 style="margin: 0; font-size: 28px; letter-spacing: 1px;">YOU ARE IN!</h1>
-                <p style="margin: 10px 0 0; opacity: 0.9;">Registration <strong style="color:#fff;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:4px;">APPROVED</strong></p>
+            <h1 style="font-size: 22px; font-weight: 800; color: #111827; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 16px;">
+                Hi {$name}, You Are Registered!
+            </h1>
+            
+            <p style="font-size: 15px; color: #374151; margin-bottom: 24px;">
+                Your registration for <strong>{$event}</strong> is confirmed. Here are your event details:
+            </p>
+
+            <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 28px; font-size: 14px;">
+                <p style="margin: 0 0 10px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Event:</strong> <span style="font-weight:700; color:#111827;">{$event}</span></p>
+                <p style="margin: 0 0 10px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Date:</strong> {$date}</p>
+                <p style="margin: 0 0 16px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Venue:</strong> {$venue}</p>
+                
+                <div>
+                    <a href="{$finalMapUrl}" class="btn btn-map" target="_blank">📍 Open in Google Maps</a>
+                    <a href="{$calendarUrl}" class="btn btn-cal" target="_blank">📅 Add to Calendar</a>
+                </div>
+            </div>
+
+            <div style="text-align: center; border-top: 1px solid #e5e7eb; padding-top: 28px;">
+                <p style="font-size: 15px; font-weight: 700; color: #111827; margin-top: 0; margin-bottom: 12px;">
+                    Please present this QR code when entering the event:
+                </p>
+                <a href="{$scanUrl}" target="_blank">
+                    <img src="cid:qr_ticket_cid" alt="QR Ticket" style="width: 200px; height: 200px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; background: #fff;">
+                </a>
+                <p style="font-size: 12px; color: #6b7280; margin-top: 10px;">
+                    Ticket ID: <strong>{$qrToken}</strong>
+                </p>
             </div>
             
-            <!-- Body -->
-            <div style="padding: 30px 20px;">
-                <p style="font-size: 16px; color: #333; margin-top: 0;">Hi <strong>{$name}</strong>,</p>
-                <p style="color: #666; line-height: 1.6; font-size: 14px;">Your registration for <strong>{$event}</strong> has been confirmed. Below is your official entrance ticket. Please present this QR code at the door.</p>
-                
-                <!-- QR Code Box -->
-                <div style="text-align: center; margin: 25px 0; padding: 25px 15px; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 12px;">
-                    <a href="{$scanUrl}" target="_blank">
-                        <img src="cid:qr_ticket_cid" alt="QR Ticket" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                    </a>
-                    <p style="color: #64748b; font-size: 12px; margin-top: 15px; letter-spacing: 1px; text-transform: uppercase;">Unique Ticket ID<br><strong style="color:#334155;font-size:14px;">{$qrToken}</strong></p>
-                    <a href="{$scanUrl}&download=1" target="_blank" style="display: inline-block; background-color: #10B981; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: bold; margin-top: 10px;">View & Download PDF Receipt</a>
-                </div>
-
-                <!-- Event Details -->
-                <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
-                    <tr>
-                        <td style="padding: 15px 0; border-bottom: 1px solid #e2e8f0; width: 80px; vertical-align: top; font-weight: bold; color: #94a3b8;">DATE</td>
-                        <td style="padding: 15px 0; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: top;">
-                            <strong>{$date}</strong><br>
-                            <a href="{$calendarUrl}" class="waze-btn" style="background-color: #4285F4; color: #fff;" target="_blank">Pin to Google Calendar</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 15px 0; border-bottom: 1px solid #e2e8f0; vertical-align: top; font-weight: bold; color: #94a3b8;">VENUE</td>
-                        <td style="padding: 15px 0; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: top;">
-                            <strong>{$venue}</strong><br>
-                            <a href="{$finalMapUrl}" class="map-btn" target="_blank">Navigate with Google Maps</a>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- Footer -->
-            <div style="background: #1e293b; color: #94a3b8; text-align: center; padding: 20px; font-size: 12px;">
-                <p style="margin: 0;">Event Management System &copy; 2026</p>
-                <p style="margin: 5px 0 0;">Please have this email ready on your phone when arriving.</p>
+            <div style="margin-top: 32px; font-size: 12px; color: #9ca3af; text-align: center; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+                Event Management System &copy; 2026
             </div>
         </div>
     </body>
@@ -166,19 +156,21 @@ function _buildRejectedHtml(string $name, string $event): string {
     return <<<HTML
     <!DOCTYPE html>
     <html>
-    <head><style>body { font-family: 'Inter', Helvetica, sans-serif; background: #f4f7f6; margin: 0; padding: 40px 20px; }</style></head>
+    <head>
+        <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: #ffffff; color: #1f2937; margin: 0; padding: 30px 20px; line-height: 1.6; }
+            .container { max-width: 520px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 32px; }
+        </style>
+    </head>
     <body>
-        <div style="max-width:600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05);">
-            <div style="background: linear-gradient(135deg, #e17055, #ff7675); padding: 40px 20px; text-align: center; color: white;">
-                <h1 style="margin: 0; font-size: 24px;">Registration Update</h1>
-            </div>
-            <div style="padding: 40px;">
-                <p style="font-size: 18px; color: #333; margin-top: 0;">Hi <strong>{$name}</strong>,</p>
-                <p style="color: #666; line-height: 1.6;">Unfortunately, your registration for <strong>{$event}</strong> has been <span style="color:#e17055;font-weight:bold;">REJECTED</span>.</p>
-                <p style="color: #666; line-height: 1.6;">This may be due to age restrictions or event capacity. Please check out our other available events!</p>
-            </div>
-            <div style="background: #1e293b; color: #94a3b8; text-align: center; padding: 20px; font-size: 12px;">
-                <p style="margin: 0;">Event Management System &copy; 2026</p>
+        <div class="container">
+            <h1 style="font-size: 22px; font-weight: 800; color: #dc2626; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 16px;">
+                Registration Status Update
+            </h1>
+            <p style="font-size: 15px; color: #374151;">Hi <strong>{$name}</strong>,</p>
+            <p style="color: #4b5563; font-size: 15px;">Unfortunately, your registration for <strong>{$event}</strong> has been <strong>not approved</strong> at this time due to event capacity or eligibility criteria.</p>
+            <div style="margin-top: 32px; font-size: 12px; color: #9ca3af; text-align: center; border-top: 1px solid #f3f4f6; padding-top: 16px;">
+                Event Management System &copy; 2026
             </div>
         </div>
     </body>
