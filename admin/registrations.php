@@ -88,6 +88,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manual_register'])) {
     }
 }
 
+// Handle edit/delete actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'delete_reg') {
+        $regId = (int)$_POST['reg_id'];
+        $conn->prepare("DELETE FROM registrations WHERE reg_id = ?")->execute([$regId]);
+        $success = 'Registration deleted successfully.';
+    }
+    if ($_POST['action'] === 'edit_participant') {
+        $regId = (int)$_POST['reg_id'];
+        $stmt = $conn->prepare("SELECT user_id FROM registrations WHERE reg_id = ?");
+        $stmt->execute([$regId]);
+        $userId = $stmt->fetchColumn();
+        if ($userId) {
+            $conn->prepare("UPDATE users SET fname=?, lname=?, email=?, contact_number=? WHERE user_id=?")->execute([
+                trim($_POST['fname']), trim($_POST['lname']), trim($_POST['email']), trim($_POST['contact_number'] ?? ''), $userId
+            ]);
+            $success = 'Participant info updated successfully.';
+        }
+    }
+}
+
 // Get filter
 $filterEvent = $_GET['event_id'] ?? '';
 $searchName  = trim($_GET['search'] ?? '');
@@ -186,6 +207,9 @@ require_once __DIR__ . '/../includes/header_admin.php';
             <div class="form-group">
                 <label class="form-label">Contact Number *</label>
                 <input type="text" name="contact_number" class="form-input" required>
+                <div id="phoneWarning" style="display:none; color:#EF4444; font-size:12px; margin-top:4px; align-items:center; gap:4px;">
+                    <i class="ph-bold ph-warning-circle"></i> <span id="phoneWarningText">Invalid Philippine phone number.</span>
+                </div>
             </div>
             <div class="form-group">
                 <label class="form-label">Age *</label>
@@ -212,6 +236,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const ageWarning = document.getElementById('ageWarning');
     const ageWarningText = document.getElementById('ageWarningText');
     const submitBtn = document.getElementById('submitBtn');
+    const contactInput = document.querySelector('input[name="contact_number"]');
+    const phoneWarning = document.getElementById('phoneWarning');
+    const phoneWarningText = document.getElementById('phoneWarningText');
+
+    contactInput.addEventListener('input', function() {
+        const val = this.value.trim();
+        if (!val) { phoneWarning.style.display = 'none'; return; }
+        const isValid = /^(09\d{9}|\+639\d{9})$/.test(val);
+        if (!isValid) {
+            phoneWarningText.textContent = 'Invalid PH number. Use 09XXXXXXXXX or +639XXXXXXXXX format.';
+            phoneWarning.style.display = 'flex';
+        } else {
+            phoneWarning.style.display = 'none';
+        }
+    });
 
     function checkValidation() {
         const ev = eventId.value;
@@ -294,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th style="width: 15%;">Contact</th>
                             <th style="width: 15%;">Date</th>
                             <th style="width: 15%;">Attendance</th>
+                            <th style="width: 12%;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -310,6 +350,16 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <span style="color: #94A3B8;">-</span>
                                 <?php endif; ?>
                             </td>
+                            <td>
+                                <div style="display:flex; gap:6px;">
+                                    <button onclick="editParticipant(<?= $r['reg_id'] ?>, '<?= htmlspecialchars($r['fname'], ENT_QUOTES) ?>', '<?= htmlspecialchars($r['lname'], ENT_QUOTES) ?>', '<?= htmlspecialchars($r['email'], ENT_QUOTES) ?>', '<?= htmlspecialchars($r['contact_number'] ?? '', ENT_QUOTES) ?>')" class="btn btn-sm" style="background:#E0E7FF;color:#4F46E5;box-shadow:none;padding:6px 10px;font-size:12px;"><i class="ph ph-pencil-simple"></i></button>
+                                    <form method="POST" style="display:inline;margin:0;" onsubmit="return confirm('Delete this registration?')">
+                                        <input type="hidden" name="action" value="delete_reg">
+                                        <input type="hidden" name="reg_id" value="<?= $r['reg_id'] ?>">
+                                        <button type="submit" class="btn btn-sm" style="background:#FEE2E2;color:#EF4444;box-shadow:none;padding:6px 10px;font-size:12px;"><i class="ph ph-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -320,3 +370,30 @@ document.addEventListener('DOMContentLoaded', function() {
 <?php endif; ?>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
+
+<!-- Edit Participant Modal -->
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:white; border-radius:20px; padding:32px; width:90%; max-width:500px; box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+        <h3 style="margin-bottom:20px;"><i class="ph-bold ph-pencil-simple"></i> Edit Participant</h3>
+        <form method="POST" id="editForm">
+            <input type="hidden" name="action" value="edit_participant">
+            <input type="hidden" name="reg_id" id="edit_reg_id">
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">First Name</label><input type="text" name="fname" id="edit_fname" class="form-input" required></div>
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Last Name</label><input type="text" name="lname" id="edit_lname" class="form-input" required></div>
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Email</label><input type="email" name="email" id="edit_email" class="form-input" required></div>
+            <div class="form-group" style="margin-bottom:16px;"><label class="form-label">Contact Number</label><input type="text" name="contact_number" id="edit_contact" class="form-input"></div>
+            <div class="btn-group"><button type="submit" class="btn btn-primary">Save Changes</button><button type="button" onclick="document.getElementById('editModal').style.display='none'" class="btn btn-secondary">Cancel</button></div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editParticipant(regId, fname, lname, email, contact) {
+    document.getElementById('edit_reg_id').value = regId;
+    document.getElementById('edit_fname').value = fname;
+    document.getElementById('edit_lname').value = lname;
+    document.getElementById('edit_email').value = email;
+    document.getElementById('edit_contact').value = contact;
+    document.getElementById('editModal').style.display = 'flex';
+}
+</script>

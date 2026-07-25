@@ -12,6 +12,12 @@ require_once __DIR__ . '/../config/database.php';
 $db   = new Database();
 $conn = $db->connect();
 
+// Auto-deactivate past events
+$conn->exec("UPDATE events SET is_active = 0 WHERE is_active = 1 AND event_date IS NOT NULL AND (
+    (event_date < CURDATE()) OR 
+    (event_date = CURDATE() AND event_time IS NOT NULL AND event_time < CURTIME())
+)");
+
 $success = '';
 $error   = '';
 
@@ -239,6 +245,9 @@ require_once __DIR__ . '/../includes/header_admin.php';
                     <i class="ph ph-calendar-blank" style="font-size: 16px; color: var(--accent);"></i> <?= htmlspecialchars($ev['event_date'] ?? 'TBD') ?>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
+                    <i class="ph ph-clock" style="font-size: 16px; color: #3B82F6;"></i> <?= !empty($ev['event_time']) ? date('g:i A', strtotime($ev['event_time'])) : 'TBD' ?>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
                     <i class="ph ph-map-pin" style="font-size: 16px; color: #EF4444;"></i> <?= htmlspecialchars($ev['venue'] ?? 'TBD') ?>
                 </div>
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -323,11 +332,37 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!map.hasLayer(marker)) marker.addTo(map);
         marker.setLatLng([e.latlng.lat, e.latlng.lng]);
         updateInputs(e.latlng.lat, e.latlng.lng);
+
+        // Reverse geocode to show location name
+        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + e.latlng.lat + '&lon=' + e.latlng.lng)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.display_name) {
+                    document.getElementById('mapSearch').value = data.display_name.split(',').slice(0, 2).join(', ');
+                    var venueInput = document.querySelector('input[name="venue"]');
+                    if (venueInput && !venueInput.value) {
+                        venueInput.value = data.display_name.split(',').slice(0, 3).join(', ');
+                    }
+                }
+            }).catch(function() {});
     });
 
     marker.on('dragend', function(e) {
         var pos = marker.getLatLng();
         updateInputs(pos.lat, pos.lng);
+
+        // Reverse geocode to show location name
+        fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat=' + pos.lat + '&lon=' + pos.lng)
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (data && data.display_name) {
+                    document.getElementById('mapSearch').value = data.display_name.split(',').slice(0, 2).join(', ');
+                    var venueInput = document.querySelector('input[name="venue"]');
+                    if (venueInput && !venueInput.value) {
+                        venueInput.value = data.display_name.split(',').slice(0, 3).join(', ');
+                    }
+                }
+            }).catch(function() {});
     });
 
     // Search on Enter key

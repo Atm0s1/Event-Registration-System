@@ -11,22 +11,47 @@ require_once __DIR__ . '/../config/database.php';
 $db   = new Database();
 $conn = $db->connect();
 
-// Fetch all registrations across all events, latest first
-$regs = $conn->query("
+// Search functionality
+$searchQuery = trim($_GET['search'] ?? '');
+
+$sql = "
     SELECT r.reg_id, r.registered_date, r.registered_time, r.updated_at, r.status,
            u.fname, u.lname, u.email,
            e.event_name, e.icon, e.is_archived
     FROM registrations r
     JOIN events e ON r.event_id = e.event_id
     JOIN users u ON r.user_id = u.user_id
-    ORDER BY r.reg_id DESC
-")->fetchAll();
+";
+$params = [];
+
+if ($searchQuery !== '') {
+    $sql .= " WHERE (u.fname LIKE :s OR u.lname LIKE :s OR CONCAT(u.fname, ' ', u.lname) LIKE :s OR u.email LIKE :s)";
+    $params[':s'] = "%$searchQuery%";
+}
+
+$sql .= " ORDER BY r.reg_id DESC";
+$stmt = $conn->prepare($sql);
+$stmt->execute($params);
+$regs = $stmt->fetchAll();
 
 require_once __DIR__ . '/../includes/header_admin.php';
 ?>
 
 <h1 class="page-title">History</h1>
 <p class="page-subtitle">Complete log of all registrations across all events</p>
+
+<div style="margin-bottom: 24px;">
+    <form method="GET" style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+        <div style="position:relative; flex:1; min-width:250px;">
+            <i class="ph-bold ph-magnifying-glass" style="position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#94A3B8; font-size:18px;"></i>
+            <input type="text" name="search" class="form-input" placeholder="Search participant name or email..." value="<?= htmlspecialchars($searchQuery) ?>" style="padding-left:42px; border-radius:12px;">
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm"><i class="ph-bold ph-magnifying-glass"></i> Search</button>
+        <?php if ($searchQuery): ?>
+            <a href="history.php" class="btn btn-secondary btn-sm">Clear</a>
+        <?php endif; ?>
+    </form>
+</div>
 
 <?php if (empty($regs)): ?>
     <div class="empty-state">
