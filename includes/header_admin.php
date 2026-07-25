@@ -49,6 +49,7 @@ if (empty($_SESSION['admin_logged_in'])) { header('Location: login.php'); exit; 
             <a href="registrations.php"   class="sidebar-link <?= ($currentPage ?? '') === 'registrations' ? 'active' : '' ?>"><i class="ph ph-users" style="font-size: 20px;"></i> Registrations</a>
             <a href="scanner.php"         class="sidebar-link" style="color: #38BDF8; font-weight: 600;"><i class="ph-bold ph-scan" style="font-size: 20px;"></i> Launch Scanner</a>
             <div class="sidebar-divider"></div>
+            <a href="statistics.php"     class="sidebar-link <?= ($currentPage ?? '') === 'statistics'    ? 'active' : '' ?>"><i class="ph ph-chart-bar" style="font-size: 20px;"></i> Event Statistics</a>
             <a href="history.php"         class="sidebar-link <?= ($currentPage ?? '') === 'history'       ? 'active' : '' ?>"><i class="ph ph-scroll" style="font-size: 20px;"></i> History</a>
             <a href="export_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'export'        ? 'active' : '' ?>"><i class="ph ph-upload-simple" style="font-size: 20px;"></i> Export XML</a>
             <a href="import_xml.php"      class="sidebar-link <?= ($currentPage ?? '') === 'import'        ? 'active' : '' ?>"><i class="ph ph-download-simple" style="font-size: 20px;"></i> Import XML</a>
