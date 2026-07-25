@@ -23,6 +23,25 @@ $upcomingEvents = $conn->query("
     ORDER BY event_date ASC LIMIT 4
 ")->fetchAll();
 
+// Chart Data: Top Events by Participants
+$chartDataQuery = $conn->query("
+    SELECT e.event_name, COUNT(r.reg_id) as participant_count
+    FROM events e
+    LEFT JOIN registrations r ON e.event_id = r.event_id
+    WHERE e.is_active = 1
+    GROUP BY e.event_id
+    ORDER BY participant_count DESC
+    LIMIT 5
+")->fetchAll();
+
+$chartLabels = [];
+$chartValues = [];
+foreach ($chartDataQuery as $row) {
+    $name = (strlen($row['event_name']) > 18) ? substr($row['event_name'], 0, 18) . '...' : $row['event_name'];
+    $chartLabels[] = $name;
+    $chartValues[] = (int)$row['participant_count'];
+}
+
 require_once __DIR__ . '/../includes/header_admin.php';
 ?>
 <div class="dash-layout">
@@ -77,7 +96,86 @@ require_once __DIR__ . '/../includes/header_admin.php';
 
     <!-- ════ RIGHT COLUMN ════ -->
     <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="stat-card" style="background: white; border: 1px solid var(--border); padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+            <h3 style="font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 20px;"><i class="ph-bold ph-chart-bar" style="color: var(--primary);"></i> Top Events by Registration</h3>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="participantsChart"></canvas>
+            </div>
+        </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('participantsChart').getContext('2d');
+    
+    // Gradient for bars
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, '#FF9F80');
+    gradient.addColorStop(1, '#FF754D');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: <?= json_encode($chartLabels) ?>,
+            datasets: [{
+                label: 'Participants',
+                data: <?= json_encode($chartValues) ?>,
+                backgroundColor: gradient,
+                borderRadius: 8,
+                borderSkipped: false,
+                barThickness: 32
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1E293B',
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' Participants';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        color: '#94A3B8',
+                        font: { family: "'Inter', sans-serif", size: 12 }
+                    },
+                    border: { display: false },
+                    grid: {
+                        color: '#F1F5F9',
+                        drawTicks: false,
+                    }
+                },
+                x: {
+                    ticks: {
+                        color: '#64748B',
+                        font: { family: "'Inter', sans-serif", size: 12, weight: '500' }
+                    },
+                    border: { display: false },
+                    grid: {
+                        display: false,
+                        drawTicks: false
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>
