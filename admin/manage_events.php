@@ -74,10 +74,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->prepare("UPDATE events SET is_archived = 1, is_active = 0 WHERE event_id = ?")->execute([$eid]);
             $success = 'Event archived successfully. You can view it in the History tab.';
 
-        } elseif ($action === 'restore') {
+        } elseif ($action === 'unarchive') {
             $eid = (int)$_POST['event_id'];
-            $conn->prepare("UPDATE events SET is_active = 1 WHERE event_id = ?")->execute([$eid]);
-            $success = 'Event restored.';
+            $conn->prepare("UPDATE events SET is_archived = 0, is_active = 1 WHERE event_id = ?")->execute([$eid]);
+            $success = 'Event unarchived and restored to active status.';
+
+        } elseif ($action === 'delete_permanent') {
+            $eid = (int)$_POST['event_id'];
+            $conn->prepare("DELETE FROM registrations WHERE event_id = ?")->execute([$eid]);
+            $conn->prepare("DELETE FROM events WHERE event_id = ?")->execute([$eid]);
+            $success = 'Archived event permanently deleted.';
         }
     } catch (Exception $e) {
         $error = 'Error: ' . $e->getMessage();
@@ -86,6 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Fetch events
 $events = $conn->query("SELECT * FROM events WHERE is_archived = 0 ORDER BY is_active DESC, created_at DESC")->fetchAll();
+$archivedEvents = $conn->query("SELECT * FROM events WHERE is_archived = 1 ORDER BY created_at DESC")->fetchAll();
 
 // Editing?
 $editEvent = null;
@@ -284,6 +291,60 @@ require_once __DIR__ . '/../includes/header_admin.php';
             </div>
         </div>
     <?php endforeach; ?>
+    </div>
+<?php endif; ?>
+
+<!-- Archived Events List -->
+<?php if (!empty($archivedEvents)): ?>
+    <div style="margin-top: 40px; border-top: 2px dashed #E2E8F0; padding-top: 32px;">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:16px;color:#64748B;display:flex;align-items:center;gap:8px;">
+            <i class="ph-bold ph-archive" style="color: #F59E0B;"></i> Archived Events (<?= count($archivedEvents) ?>)
+        </h2>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">These events are archived and hidden from registration. You can restore them to active status or permanently delete them.</p>
+
+        <div class="admin-event-grid">
+        <?php foreach ($archivedEvents as $ev): ?>
+            <div class="admin-event-card" style="opacity:0.85; background: #F8FAFC; box-shadow: none; border: 1px solid #E2E8F0; border-top: 4px solid #94A3B8; display: flex; flex-direction: column;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <h3 style="margin: 0; display: flex; align-items: center; gap: 10px; font-size: 17px; color: #475569;">
+                        <span style="display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; background: #E2E8F0; color: #64748B;">
+                            <i class="ph-fill ph-archive" style="font-size: 20px;"></i>
+                        </span>
+                        <?= htmlspecialchars($ev['event_name']) ?>
+                    </h3>
+                    <span class="badge badge-rejected" style="background:#FEF3C7;color:#D97706;border:1px solid #FDE68A;font-size:10px;font-weight:700;">ARCHIVED</span>
+                </div>
+
+                <p class="event-detail" style="margin-bottom: 16px; color: #64748B; line-height: 1.5; flex-grow: 1;">
+                    <?= htmlspecialchars($ev['description'] ?? 'No description provided.') ?>
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; font-size: 13px; color: #64748B;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-calendar-blank" style="font-size: 16px;"></i> <?= htmlspecialchars($ev['event_date'] ?? 'TBD') ?>
+                        <?= !empty($ev['event_time']) ? '• ' . date('g:i A', strtotime($ev['event_time'])) : '' ?>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-map-pin" style="font-size: 16px;"></i> <?= htmlspecialchars($ev['venue'] ?? 'TBD') ?>
+                    </div>
+                </div>
+
+                <div class="btn-group" style="margin-top: auto; border-top: 1px solid #E2E8F0; padding-top: 16px; display: flex; gap: 8px;">
+                    <form method="POST" style="display:inline; margin:0;">
+                        <input type="hidden" name="action" value="unarchive">
+                        <input type="hidden" name="event_id" value="<?= $ev['event_id'] ?>">
+                        <button type="submit" class="btn btn-sm" style="background: #D1FAE5; color: #10B981; box-shadow: none;"><i class="ph ph-arrow-counter-clockwise" style="font-size: 16px;"></i> Unarchive</button>
+                    </form>
+                    
+                    <form method="POST" style="display:inline; margin:0;" onsubmit="return confirm('WARNING: Permanently delete this event and ALL participant registrations associated with it? This action CANNOT be undone!')">
+                        <input type="hidden" name="action" value="delete_permanent">
+                        <input type="hidden" name="event_id" value="<?= $ev['event_id'] ?>">
+                        <button type="submit" class="btn btn-sm" style="background: #FEE2E2; color: #EF4444; box-shadow: none;"><i class="ph ph-trash" style="font-size: 16px;"></i> Delete</button>
+                    </form>
+                </div>
+            </div>
+        <?php endforeach; ?>
+        </div>
     </div>
 <?php endif; ?>
 
