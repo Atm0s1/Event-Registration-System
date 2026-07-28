@@ -74,6 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $conn->prepare("UPDATE events SET is_archived = 1, is_active = 0 WHERE event_id = ?")->execute([$eid]);
             $success = 'Event archived successfully. You can view it in the History tab.';
 
+        } elseif ($action === 'restore') {
+            $eid = (int)$_POST['event_id'];
+            $conn->prepare("UPDATE events SET is_active = 1 WHERE event_id = ?")->execute([$eid]);
+            $success = 'Event restored.';
+
         } elseif ($action === 'unarchive') {
             $eid = (int)$_POST['event_id'];
             $conn->prepare("UPDATE events SET is_archived = 0, is_active = 1 WHERE event_id = ?")->execute([$eid]);
