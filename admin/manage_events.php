@@ -12,11 +12,6 @@ require_once __DIR__ . '/../config/database.php';
 $db   = new Database();
 $conn = $db->connect();
 
-// Auto-deactivate past events
-$conn->exec("UPDATE events SET is_active = 0 WHERE is_active = 1 AND event_date IS NOT NULL AND (
-    (event_date < CURDATE()) OR 
-    (event_date = CURDATE() AND event_time IS NOT NULL AND event_time < CURTIME())
-)");
 
 $success = '';
 $error   = '';
