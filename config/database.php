@@ -19,10 +19,6 @@ class Database {
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             
-            // Auto-deactivate past events (Considered 'Done')
-            try {
-                $pdo->exec("UPDATE events SET is_active = 0 WHERE event_date < CURDATE() AND event_date IS NOT NULL AND is_active = 1");
-            } catch (Exception $ex) {}
 
             return $pdo;
         } catch (PDOException $e) {
