@@ -5,13 +5,13 @@
  */
 
 // ── CHANGE THESE TWO LINES ──────────────────────────────────
-define('MAIL_USERNAME', 'jeremysibonga99@gmail.com');
-define('MAIL_PASSWORD', 'udkkqoomquhjbowh');        // 16-char App Password
+define('MAIL_USERNAME', 'eventregistration22@gmail.com');
+define('MAIL_PASSWORD', 'pkroxtvlmvnuiwgc');        // 16-char App Password
 // ─────────────────────────────────────────────────────────────
 
 define('MAIL_HOST',      'smtp.gmail.com');
 define('MAIL_PORT',      587);
-define('MAIL_FROM_NAME', 'Event Management System');
+define('MAIL_FROM_NAME', 'Event Registartion System');
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
@@ -20,21 +20,21 @@ use PHPMailer\PHPMailer\Exception;
 /**
  * Send an approval notification email with QR code ticket.
  */
-function sendApprovalEmail(string $toEmail, string $toName, string $eventName, string $eventDate, string $eventVenue, string $qrToken, string $mapUrl = ''): bool {
-    return _sendStatusEmail($toEmail, $toName, $eventName, 'approved', $eventDate, $eventVenue, $qrToken, $mapUrl);
+function sendApprovalEmail(string $toEmail, string $toName, string $eventName, string $eventDate, string $eventTime, string $eventVenue, string $qrToken, string $mapUrl = ''): bool {
+    return _sendStatusEmail($toEmail, $toName, $eventName, 'approved', $eventDate, $eventTime, $eventVenue, $qrToken, $mapUrl);
 }
 
 /**
  * Send a rejection notification email.
  */
 function sendRejectionEmail(string $toEmail, string $toName, string $eventName): bool {
-    return _sendStatusEmail($toEmail, $toName, $eventName, 'rejected');
+    return _sendStatusEmail($toEmail, $toName, $eventName, 'rejected', '', '', '', '', '');
 }
 
 /**
  * Internal helper — builds and sends the status email.
  */
-function _sendStatusEmail(string $toEmail, string $toName, string $eventName, string $status, string $eventDate = '', string $eventVenue = '', string $qrToken = '', string $mapUrl = ''): bool {
+function _sendStatusEmail(string $toEmail, string $toName, string $eventName, string $status, string $eventDate, string $eventTime, string $eventVenue, string $qrToken, string $mapUrl): bool {
     $autoload = __DIR__ . '/../vendor/autoload.php';
     if (!file_exists($autoload)) {
         error_log("PHPMailer not installed.");
@@ -60,22 +60,24 @@ function _sendStatusEmail(string $toEmail, string $toName, string $eventName, st
         $mail->CharSet = 'UTF-8';
 
         if ($status === 'approved') {
-            $mail->Subject = "Your Ticket: Registration Approved — $eventName";
+            $mail->Subject = "Registration Approved: $eventName";
             
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
-            $scanUrl = $protocol . $_SERVER['HTTP_HOST'] . dirname($_SERVER['SCRIPT_NAME']) . "/scan.php?token=" . urlencode($qrToken);
-            $qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" . urlencode($scanUrl) . "&margin=10";
-            
-            // Fetch and embed the image directly (CID attachment) to prevent email clients from blocking external images
-            $context = stream_context_create(["ssl" => ["verify_peer" => false, "verify_peer_name" => false], "http" => ["header" => "User-Agent: Mozilla/5.0\r\n"]]);
-            $qrImageData = @file_get_contents($qrApiUrl, false, $context);
-            if ($qrImageData) {
-                $mail->addStringEmbeddedImage($qrImageData, 'qr_ticket_cid', 'ticket.png', 'base64', 'image/png');
+            // Build absolute URLs using the server's HTTP_HOST for QR and scan
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+            $scanUrl = "$protocol://$host$basePath/scanner.php?token=$qrToken";
+
+            // Make sure the QR API gets a fully qualified URL
+            $qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($qrToken);
+            $qrImageContent = @file_get_contents($qrApiUrl);
+            if ($qrImageContent !== false) {
+                $mail->addStringEmbeddedImage($qrImageContent, 'qr_ticket_cid', 'ticket.png');
             }
             
-            $mail->Body = _buildApprovedHtml($toName, $eventName, $eventDate, $eventVenue, $qrToken, $scanUrl, $mapUrl);
+            $mail->Body = _buildApprovedHtml($toName, $eventName, $eventDate, $eventTime, $eventVenue, $qrToken, $scanUrl, $mapUrl);
         } else {
-            $mail->Subject = "Registration Rejected — $eventName";
+            $mail->Subject = "Registration Update: $eventName";
             $mail->Body = _buildRejectedHtml($toName, $eventName);
         }
 
@@ -89,11 +91,17 @@ function _sendStatusEmail(string $toEmail, string $toName, string $eventName, st
 
 /* ── HTML email templates ─────────────────────────────────── */
 
-function _buildApprovedHtml(string $name, string $event, string $date, string $venue, string $qrToken, string $scanUrl, string $mapUrl = ''): string {
+function _buildApprovedHtml(string $name, string $event, string $date, string $time, string $venue, string $qrToken, string $scanUrl, string $mapUrl = ''): string {
     $finalMapUrl = !empty($mapUrl) ? $mapUrl : "https://www.google.com/maps/search/?api=1&query=" . urlencode($venue);
 
+    // Format display string
+    $displayDate = date("F j, Y", strtotime($date));
+    if (!empty($time)) {
+        $displayDate .= ' at ' . date("g:i A", strtotime($time));
+    }
+
     // Generate Add to Google Calendar Link
-    $startDate = str_replace('-', '', $date);
+    $startDate = date('Ymd', strtotime($date));
     $endDate = date('Ymd', strtotime($date . ' +1 day'));
     $calendarUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" . urlencode($event) . "&dates={$startDate}/{$endDate}&details=" . urlencode("Your registration is confirmed! Have this email ready.") . "&location=" . urlencode($venue);
 
@@ -122,7 +130,7 @@ function _buildApprovedHtml(string $name, string $event, string $date, string $v
 
             <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin-bottom: 28px; font-size: 14px;">
                 <p style="margin: 0 0 10px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Event:</strong> <span style="font-weight:700; color:#111827;">{$event}</span></p>
-                <p style="margin: 0 0 10px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Date:</strong> {$date}</p>
+                <p style="margin: 0 0 10px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Date:</strong> {$displayDate}</p>
                 <p style="margin: 0 0 16px 0;"><strong style="color:#4b5563; width: 60px; display:inline-block;">Venue:</strong> {$venue}</p>
                 
                 <div>
