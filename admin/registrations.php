@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['manual_register'])) {
             $fullName = $fname . ' ' . $lname;
             $mapUrl = (!empty($event['latitude']) && !empty($event['longitude'])) ? "https://www.google.com/maps/search/?api=1&query={$event['latitude']},{$event['longitude']}" : '';
             
-            $emailSent = sendApprovalEmail($email, $fullName, $event['event_name'], $event['event_date'], $event['event_time'], $event['venue'], $qrToken, $mapUrl);
+            $emailSent = sendApprovalEmail($email, $fullName, $event['event_name'], $event['event_date'] ?? '', $event['event_time'] ?? '', $event['venue'] ?? '', $qrToken, $mapUrl);
 
             
             if ($emailSent) {
